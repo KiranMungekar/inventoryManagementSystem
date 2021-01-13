@@ -3,22 +3,8 @@ const MovemomentSchema = require('../models/ProductMovementSchema');
 
 const warehouseService= require('../services/warehouseService');
 
-//Ignore
-module.exports.createMovementOfProduct= async ({name,fromLocationId,toLocationId,status,productId,qty})=>{
-    const product= await MovemomentSchema({
-            _id: mongoose.Types.ObjectId(),
-            from_location:fromLocationId,
-            to_location:toLocationId,
-            timestamp: Date.now(),
-            product: productId,
-            qty
-    });
 
-    
-    return await product.save();
-}
-
-module.exports.moveTheProductTo= async ({fromLocationId,toLocationId,productId,qty})=>{
+const moveTheProductTo= async ({fromLocationId,toLocationId,productId,qty})=>{
     if(toLocationId !== null && toLocationId !== ''){
         return await createMovementLog(fromLocationId,toLocationId,productId,qty)
     }else{
@@ -26,7 +12,7 @@ module.exports.moveTheProductTo= async ({fromLocationId,toLocationId,productId,q
     }
 }
 
-module.exports.moveTheProductFrom= async ({fromLocationId,toLocationId,productId,qty})=>{
+const moveTheProductFrom= async ({fromLocationId,toLocationId,productId,qty})=>{
     if(toLocationId !== null && fromLocationId !== null){
         return await createMovementLog(fromLocationId,toLocationId,productId,qty)
     }else{
@@ -34,11 +20,11 @@ module.exports.moveTheProductFrom= async ({fromLocationId,toLocationId,productId
     }
 }
 
-module.exports.getMovementById= async (id)=>{
+const getMovementById= async (id)=>{
     return await MovemomentSchema.findById(id).exec(); 
 }
 
-module.exports.getAllProductsInMovement= async (id)=>{
+const getAllProductsInMovement= async (id)=>{
     return await MovemomentSchema.find({})
                                         .populate('from_location')
                                         .populate('to_location')
@@ -47,7 +33,7 @@ module.exports.getAllProductsInMovement= async (id)=>{
                                         .exec(); 
 }
 
-module.exports.updateMovementStatus= async ({id, status})=>{
+const updateMovementStatus= async ({id, status})=>{
 
     return await MovemomentSchema.findOneAndUpdate(
             {'_id':id},
@@ -60,6 +46,13 @@ module.exports.updateMovementStatus= async ({id, status})=>{
     
 }
 
+module.exports={
+    updateMovementStatus,
+    getAllProductsInMovement,
+    getMovementById,
+    moveTheProductFrom,
+    moveTheProductTo
+}
 
 const createMovementLog=async (fromLocationId,toLocationId,productId,qty)=>{
     const movement= await MovemomentSchema({
@@ -72,3 +65,4 @@ const createMovementLog=async (fromLocationId,toLocationId,productId,qty)=>{
     });
     return await movement.save();
 }
+

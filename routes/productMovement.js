@@ -2,6 +2,7 @@ const express= require('express');
 const router = express.Router();
 
 const productMovementService= require('../services/productMovementService');
+const warehouseService= require('../services/warehouseService');
 
 
 router.get('/test', async (req, res, next) => {
@@ -11,12 +12,16 @@ router.get('/test', async (req, res, next) => {
 
 router.post('/createMovement', async (req, res, next)=>{
     try{
-         const data= await productMovementService.moveTheProductTo(req.body);
+        //First create product transaction;
+        const data= await productMovementService.moveTheProductTo(req.body);
+        console.log(data);
+        //second update warehouse inventory;
+        const updatedInventory= await warehouseService.updateInventoryByProduct(data.get('to_location').toString(), data.get('product').toString(), data.get('qty'));
          res.status(201).send({
              data:{
                  "status":"success",
                  product:{
-                     status:data.status,
+                     inventory:updatedInventory.get('inventory')
                  }
              }
          });
