@@ -1,7 +1,7 @@
-var express= require('express');
-var router = express.Router();
+const express= require('express');
+const router = express.Router();
 
-var productService =require('../services/productService');
+const productService =require('../services/productService');
 
 router.get('/test', async (req, res, next) => {
     res.send({"success":true}).status(200);
@@ -38,6 +38,20 @@ router.get('/getProduct/:id', async (req, res, next) => {
     next(err);
    }
 });
+
+router.get('/getAllProduct/', async (req, res, next) => {
+    try{
+     const products= await productService.getAllProducts();
+     res.status(200).send({
+         data:{
+             "status":"success",
+             products
+         }
+     })
+    }catch(err){
+     next(err);
+    }
+ });
 
 router.put('/updateProduct', async (req,res,next)=>{
     try{

@@ -36,6 +36,8 @@ var indexRouter = require('./routes/index');
 //var moviesRouter= require('./routes/movies');
 //var authRouter= require('./routes/auth');
 var productsRouter= require('./routes/product');
+var locationRouter= require('./routes/location');
+var movementRouter= require('./routes/productMovement');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -53,6 +55,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 //app.use('/api/library', libraryRouter)
 app.use('/api/products/',productsRouter);
+app.use('/api/locations/', locationRouter);
+app.use('/api/transport/', movementRouter);
 //app.use('/api', usersRouter);
 //app.use('/api/movies',moviesRouter);
 //app.use('/api/auth',authRouter)

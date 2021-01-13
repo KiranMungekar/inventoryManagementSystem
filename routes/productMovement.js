@@ -11,7 +11,7 @@ router.get('/test', async (req, res, next) => {
 
 router.post('/createMovement', async (req, res, next)=>{
     try{
-         const data= await productMovementService.createMovementOfProduct(req.body);
+         const data= await productMovementService.moveTheProductTo(req.body);
          res.status(201).send({
              data:{
                  "status":"success",
@@ -55,3 +55,5 @@ router.get('/updateMovementStatus', async (req, res, next)=>{
     }
  
 });
+
+module.exports= router

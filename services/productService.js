@@ -24,3 +24,7 @@ module.exports.updateProductById= async ({id, name, price})=>{
         )
     
 }
+
+module.exports.getAllProducts = async ()=>{
+    return await ProductSchema.find({}).sort('name');
+}

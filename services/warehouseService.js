@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
-const LocationSchema = require('../models/LocationSchema');
+const {LocationSchema,InventorySchema} = require('../models/LocationSchema');
 
 module.exports.addLocation= async ({name})=>{
     const product= await LocationSchema({
             _id:mongoose.Types.ObjectId(),
             locationName:name,
-            
+            inventory:[]
     });
     return await product.save();
 }
@@ -15,8 +15,6 @@ module.exports.getLocationtById= async (id)=>{
 }
 
 module.exports.updateLocationById= async ({id, name})=>{
-
-
     return await LocationSchema.findOneAndUpdate(
             {'_id':id},
             {
@@ -24,5 +22,13 @@ module.exports.updateLocationById= async ({id, name})=>{
             },
             {useFindAndModify: false}
     )
+    
+}
+
+module.exports.getAllLocations= async()=>{
+    return await LocationSchema.find({}).sort({'name':'asc'});
+}
+
+const createLocation= ()=>{
     
 }

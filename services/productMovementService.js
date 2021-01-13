@@ -1,19 +1,16 @@
 const mongoose = require('mongoose');
 const MovemomentSchema = require('../models/ProductMovementSchema');
 
-const PRE_TRANSIT='PRE_TRANSIT';
-const IN_TRANSIT='IN_TRANSIT';
-const DELIVERED='DELIVERED';
+const warehouseService= require('../services/warehouseService');
 
+//Ignore
 module.exports.createMovementOfProduct= async ({name,fromLocationId,toLocationId,status,productId,qty})=>{
     const product= await MovemomentSchema({
             _id: mongoose.Types.ObjectId(),
-            status:PRE_TRANSIT,
             from_location:fromLocationId,
             to_location:toLocationId,
             timestamp: Date.now(),
-            statusUpdateTimestamp: Date.now(),
-            product_id: productId,
+            product: productId,
             qty
     });
 
@@ -21,12 +18,33 @@ module.exports.createMovementOfProduct= async ({name,fromLocationId,toLocationId
     return await product.save();
 }
 
+module.exports.moveTheProductTo= async ({fromLocationId,toLocationId,productId,qty})=>{
+    if(toLocationId !== null && toLocationId !== ''){
+        return await createMovementLog(fromLocationId,toLocationId,productId,qty)
+    }else{
+        throw new Error(`To location not present`);
+    }
+}
+
+module.exports.moveTheProductFrom= async ({fromLocationId,toLocationId,productId,qty})=>{
+    if(toLocationId !== null && fromLocationId !== null){
+        return await createMovementLog(fromLocationId,toLocationId,productId,qty)
+    }else{
+        throw new Error(`fromLocationId: ${fromLocationId} and toLocationId:${toLocationId}`);
+    }
+}
+
 module.exports.getMovementById= async (id)=>{
     return await MovemomentSchema.findById(id).exec(); 
 }
 
 module.exports.getAllProductsInMovement= async (id)=>{
-    return await MovemomentSchema.find({}).sort({'timestamp':'desc'}).exec(); 
+    return await MovemomentSchema.find({})
+                                        .populate('from_location')
+                                        .populate('to_location')
+                                        .populate('product')
+                                        .sort({'timestamp':'desc'})
+                                        .exec(); 
 }
 
 module.exports.updateMovementStatus= async ({id, status})=>{
@@ -40,4 +58,17 @@ module.exports.updateMovementStatus= async ({id, status})=>{
             {useFindAndModify: false}
     )
     
+}
+
+
+const createMovementLog=async (fromLocationId,toLocationId,productId,qty)=>{
+    const movement= await MovemomentSchema({
+        _id: mongoose.Types.ObjectId(),
+        from_location:fromLocationId,
+        to_location:toLocationId,
+        timestamp: Date.now(),
+        product: productId,
+        qty
+    });
+    return await movement.save();
 }
