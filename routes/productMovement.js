@@ -10,7 +10,7 @@ router.get('/test', async (req, res, next) => {
 });
 
 
-router.post('/createMovement', async (req, res, next)=>{
+router.post('/createToMovement', async (req, res, next)=>{
     try{
         //First create product transaction;
         const data= await productMovementService.moveTheProductTo(req.body);
@@ -25,6 +25,34 @@ router.post('/createMovement', async (req, res, next)=>{
                  }
              }
          });
+    }catch(err){
+         next(err);
+    }
+ 
+});
+
+router.post('/movementFromXToY', async (req, res, next)=>{
+    try{
+
+         //First create product avaibility in warehouse location;
+        const isAvailable=await warehouseService.checkWarehouseProductAvailability(req.body);
+
+        if(isAvailable){
+            //second create product transaction;
+            const data= await productMovementService.moveTheProductTo(req.body);
+            console.log(data);
+            //third update warehouse inventory;
+            const updatedInventory= await warehouseService.updateInventoryByProduct(req.body);
+            res.status(201).send({
+                data:{
+                    "status":"success",
+                    product:{
+                        inventory:updatedInventory.get('inventory')
+                    }
+                }
+            });
+        }
+        
     }catch(err){
          next(err);
     }

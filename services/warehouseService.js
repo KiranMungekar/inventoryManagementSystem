@@ -39,18 +39,31 @@ const getAllLocations= async()=>{
     return await LocationSchema.find({}).sort({'name':'asc'});
 }
 
-const checkWarehouseProduct = async (locationId,productId,qty)=>{
-    const location= await getLocationtById();
+const checkWarehouseProductAvailability = async ({fromLocationId,productId,qty})=>{
+    const location= await getLocationtById(fromLocationId);
     if(location != null){
-        let currentInventory= location.get('inventory');
-        let product= currentInventory.filter(prod=> prod._id === productId);
-        console.log(product);
+        let currentInventory= location[0].get('inventory');
+        let productIndex= indexOfProduct(currentInventory,productId);
         
+        ///Throw error if product is not in inventory
+        if(productId === -1)
+            throw new Error(`Product not available at this location. ProductId ${productId}`);
+
+        ///Throw error if product is not available in sufficient quantity;
+        console.log(currentInventory[productIndex].qty);
+        if(currentInventory[productIndex].qty < qty)
+            throw new Error(`Product not available in sufficient quantity. ProductId ${productId}`);
+            
+        updatedInventory= updateOrAddProduct(currentInventory,productIndex, productId, -qty); 
+        return await updateInventoryByLocationId(location[0].get('_id'), updatedInventory);
+        
+    }else{
+        throw new Error(`Location not found. locationId:${from_locationId}`);
     }
 }
 
-const updateInventoryByProduct= async (locationId,productId,qty)=>{
-    const location= await getLocationtById(locationId);
+const updateInventoryByProduct= async ({toLocationId,productId,qty})=>{
+    const location= await getLocationtById(toLocationId);
     if(location != null && location.length > 0){
         let currentInventory= location[0].get('inventory');
         //let product= currentInventory.filter(prod=> prod._id === productId);
@@ -62,7 +75,7 @@ const updateInventoryByProduct= async (locationId,productId,qty)=>{
         updatedInventory= updateOrAddProduct(currentInventory,productIndex, productId, qty);
         return await updateInventoryByLocationId(location[0].get('_id'), updatedInventory);
     }
-    throw new Error(`Location not found. locationId:${locationId}`);
+    throw new Error(`Location not found. locationId:${toLocationId}`);
 }
 
 const indexOfProduct=(inventory, productId)=>{
@@ -100,5 +113,6 @@ module.exports={
     getLocationtById,
     updateLocationById,
     getAllLocations,
-    updateInventoryByProduct
+    updateInventoryByProduct,
+    checkWarehouseProductAvailability
 }
