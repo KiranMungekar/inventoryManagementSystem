@@ -17,6 +17,6 @@ const LocationSchema= new Schema({
 
 
 
-module.exports.InventorySchema = mongoose.model('Inventory',InventorySchema);
+module.exports.InventorySchema = mongoose.model('inventory',InventorySchema);
 
 module.exports.LocationSchema= mongoose.model('location',LocationSchema, 'WarehouseLocations');

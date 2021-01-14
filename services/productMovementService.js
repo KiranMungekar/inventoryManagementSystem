@@ -55,6 +55,8 @@ module.exports={
 }
 
 const createMovementLog=async (fromLocationId,toLocationId,productId,qty)=>{
+    if(fromLocationId == '')
+        fromLocationId= null
     const movement= await MovemomentSchema({
         _id: mongoose.Types.ObjectId(),
         from_location:fromLocationId,

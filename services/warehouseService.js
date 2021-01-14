@@ -1,6 +1,42 @@
 const mongoose = require('mongoose');
 const {LocationSchema,InventorySchema} = require('../models/LocationSchema');
 
+const getReportFormat= (props)=>{
+    const reportData= props.map(inventory=> {
+        return {
+            "location": inventory.get('locationName'),
+            "inventory":reportInventoryFormat(inventory.get('inventory')),
+            "totalBalance":calculateTotalBalance(inventory.get('inventory'))
+        }
+    })
+    return reportData;
+
+    
+}
+
+const reportInventoryFormat = (inventory)=>{
+   const transformed= inventory.map((product)=> {
+        return {
+            "productName":product.get('product').get('name'),
+            "qty":product.get('qty')
+        }
+    })
+    return transformed;
+    
+}
+
+const calculateTotalBalance = (products)=> {
+    let total=0;
+    if(products.length > 0){
+        products.forEach( product=>{
+            total+= product.get('qty')
+        })
+        
+    }
+    return total;
+};
+
+
 const addLocation= async ({name})=>{
     const product= await LocationSchema({
             _id:mongoose.Types.ObjectId(),
@@ -37,6 +73,12 @@ const updateInventoryByLocationId= async (id, inventory)=>{
 
 const getAllLocations= async()=>{
     return await LocationSchema.find({}).sort({'name':'asc'});
+}
+
+const getAllLocationsPopulated= async()=>{
+    return await LocationSchema.find({})
+                            .populate('inventory.product')
+                            .sort({'name':'asc'});
 }
 
 const checkWarehouseProductAvailability = async ({fromLocationId,productId,qty})=>{
@@ -114,5 +156,7 @@ module.exports={
     updateLocationById,
     getAllLocations,
     updateInventoryByProduct,
-    checkWarehouseProductAvailability
+    checkWarehouseProductAvailability,
+    getReportFormat,
+    getAllLocationsPopulated
 }

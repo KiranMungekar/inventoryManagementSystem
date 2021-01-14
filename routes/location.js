@@ -13,9 +13,9 @@ router.post('/addLocation', async (req, res, next) => {
    try{ 
         const location= await warehouseService.addLocation(req.body);
         res.status(201).send({
-            data:{
+                "status":"success",
                 location
-            }
+        
         })
 
    }catch(err){
@@ -27,9 +27,8 @@ router.get('/getLocation/:id', async (req, res, next) => {
     try{ 
          const location= await warehouseService.getLocationtById(req.params.id);
          res.status(200).send({
-            data:{
-                location
-            }
+            "status":"success",
+            location
         })
  
     }catch(err){
@@ -40,11 +39,7 @@ router.get('/getLocation/:id', async (req, res, next) => {
 router.put('/updateLocation/:id', async (req, res, next) => {
     try{ 
          const location= await warehouseService.updateLocationById(req.body);
-         res.status(200).send({
-            data:{
-                location
-            }
-        })
+         res.status(200).send({"status":"success", location})
  
     }catch(err){
          next(err);
@@ -54,15 +49,25 @@ router.put('/updateLocation/:id', async (req, res, next) => {
 router.get('/getAllLocations', async (req, res, next) => {
     try{ 
          const locations= await warehouseService.getAllLocations();
-         res.status(200).send({
-            data:{
-                locations
-            }
-        })
+         res.status(200).send({"status":"success",locations})
  
     }catch(err){
          next(err);
     }
 });
+
+router.get('/generateReport', async (req, res, next)=>{
+     try{
+          const data= await warehouseService.getAllLocationsPopulated()
+          const report= await warehouseService.getReportFormat(data);
+          res.status(200).send({
+                 "status":"success",
+                 report:report
+          });
+     }catch(err){
+          next(err);
+     }
+  
+ });
 
 module.exports= router;
